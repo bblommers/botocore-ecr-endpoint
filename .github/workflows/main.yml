@@ -1,0 +1,32 @@
+# Run separate test cases to verify SQS works with multiple botocore versions (/multiple response-types, QUERY and JSON)
+#
+name: "Botocore ECR Test"
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        botocore-version: ["1.35.88", "1.35.87"]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install project dependencies
+      run: |
+        pip install pytest
+        pip install boto3 botocore==${{ matrix.botocore-version }}
+
+    - name: Run tests
+      run: |
+        pytest -sv tests/
+
